@@ -138,9 +138,9 @@ private extension ViewController {
         
         let transformedPath = UIBezierPath(arcCenter:   coordinates.transfromedCenter,
                                            radius:      size,
-                                           startAngle:  coordinates.transformedStartAngle,
-                                           endAngle:    coordinates.transformedEndAngle,
-                                           clockwise:   false)
+                                           startAngle:  coordinates.transformedEndAngle,
+                                           endAngle:    coordinates.transformedStartAngle,
+                                           clockwise:   true)
         transformedPaths.append(transformedPath.cgPath)
         
         let quarterLayer = CAShapeLayer()
