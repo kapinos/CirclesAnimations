@@ -15,52 +15,6 @@ class ViewController: UIViewController {
     var cubeViews: [UIView] = []
     let size: CGFloat = 50
     
-    struct SublayersCoordinates {
-        var startPoint: CGPoint
-        var endPoint:   CGPoint
-        var startAngle: CGFloat
-        var endAngle:   CGFloat
-        var arcCenter:  CGPoint
-        
-        init(quarter: Int, bounds: CGRect) {
-            switch quarter {
-            case 1:
-                startPoint = CGPoint(x: bounds.maxX, y: bounds.minY)
-                endPoint   = CGPoint(x: bounds.minX, y: bounds.maxY)
-                startAngle = 0
-                endAngle   = CGFloat.pi / 2
-                arcCenter  = CGPoint.zero
-                
-            case 2:
-                startPoint = CGPoint(x: bounds.maxX, y: bounds.maxY)
-                endPoint   = CGPoint(x: bounds.minX, y: bounds.minY)
-                startAngle = CGFloat.pi / 2
-                endAngle   = CGFloat.pi
-                arcCenter  = CGPoint(x: bounds.maxX, y: bounds.minY)
-                
-            case 3:
-                startPoint = CGPoint(x: bounds.minX, y: bounds.maxY)
-                endPoint   = CGPoint(x: bounds.maxX, y: bounds.minY)
-                startAngle = CGFloat.pi
-                endAngle   = 3 * CGFloat.pi / 2
-                arcCenter  = CGPoint(x: bounds.maxX, y: bounds.maxY)
-                
-            case 4:
-                startPoint = CGPoint(x: bounds.minX, y: bounds.minY)
-                endPoint   = CGPoint(x: bounds.maxX, y: bounds.maxY)
-                startAngle = 3 * CGFloat.pi / 2
-                endAngle   = 2 * CGFloat.pi
-                arcCenter  = CGPoint(x: bounds.minX, y: bounds.maxY)
-                
-            default:
-                startPoint = CGPoint(x: bounds.maxX, y: bounds.minY)
-                endPoint   = CGPoint(x: bounds.minX, y: bounds.maxY)
-                startAngle = 0
-                endAngle   = CGFloat.pi / 2
-                arcCenter  = CGPoint.zero
-            }
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -108,8 +62,34 @@ class ViewController: UIViewController {
         super.viewDidAppear(animated)
         
         //animateCubeView()
+        
+        for cube in cubeViews {
+            UIView.animate(withDuration: 1, delay: 1, options: [.curveLinear, .curveEaseIn], animations: {
+                let animation = CATransform3DMakeRotation(self.degreesToRadians(90), 0, 0, -10)
+                cube.layer.transform = animation
+                
+//                CATransaction.begin()
+//                CATransaction.setAnimationDuration(0.5)
+//
+//                cube.layer.backgroundColor = UIColor.red.cgColor
+//
+//                CATransaction.commit()
+                
+                for case let layer in cube.layer.sublayers! {
+                    if let shapeLayer = layer as? CAShapeLayer  {
+                        if shapeLayer.name! == "line" {
+                            
+                            //shapeLayer.transform = animation
+                            //shapeLayer.strokeColor = UIColor.red.cgColor
+                        }
+                    }
+                }
+            }, completion: nil)
+        }
     }
+}
 
+private extension ViewController {
     func addLayersTo(cubeView: UIView, in quarter: Int) {
         let coordinates = SublayersCoordinates(quarter: quarter, bounds: cubeView.bounds)
         
@@ -121,8 +101,8 @@ class ViewController: UIViewController {
         
         let quarterLayer = CAShapeLayer()
         quarterLayer.path = quarterPath.cgPath
-        quarterLayer.strokeColor = UIColor.white.cgColor
-        quarterLayer.lineWidth = 1.8
+        quarterLayer.strokeColor = LayerProperties.strokeColor
+        quarterLayer.lineWidth = LayerProperties.lineWidth
         quarterLayer.name = "quarter"
         
         
@@ -132,8 +112,8 @@ class ViewController: UIViewController {
         
         let lineLayer = CAShapeLayer()
         lineLayer.path = linePath.cgPath
-        lineLayer.strokeColor = UIColor.white.cgColor
-        lineLayer.lineWidth = 1.8
+        lineLayer.strokeColor = LayerProperties.strokeColor
+        lineLayer.lineWidth = LayerProperties.lineWidth
         lineLayer.name = "line"
         
         cubeView.layer.addSublayer(quarterLayer)
@@ -143,6 +123,11 @@ class ViewController: UIViewController {
     }
 }
 
+
+
+
+
+//------------------------------------------------
 // MARK: - CubeView
 private extension ViewController {
     func animateCubeView() {
