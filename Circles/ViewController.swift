@@ -55,24 +55,8 @@ class ViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        //animateCALayers()
+        animateCALayers()
         //animateCubeViews()
-        
-        let lineSublayers = self.cubeViews
-            .map{ $0.layer.sublayers }
-            .compactMap{ $0 }.flatMap{ $0 }
-            .filter{ $0.name! == "line" }.map{ $0 as? CAShapeLayer }.compactMap{ $0 }
-        
-        for i in 0..<self.cubeViews.count {
-            let pathAnimation = CABasicAnimation(keyPath: "path")
-            pathAnimation.toValue = transformedPaths[i]
-            pathAnimation.duration = 1.5
-            pathAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-            pathAnimation.autoreverses = true
-            pathAnimation.repeatCount = .greatestFiniteMagnitude
-
-            lineSublayers[i].add(pathAnimation, forKey: "pathAnimation")
-        }
     }
 }
 
@@ -81,49 +65,49 @@ private extension ViewController {
         let rotation = CABasicAnimation(keyPath: "transform.rotation")
         rotation.toValue = NSNumber(value:  Double.pi/2)
         rotation.duration = 1.5
-        rotation.repeatCount = 1
+        rotation.repeatCount = .greatestFiniteMagnitude
         rotation.autoreverses = true
         rotation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
         
-        _ = self.cubeViews.map{ $0.layer.add(rotation, forKey: "rotation") }
+        //_ = self.cubeViews.map{ $0.layer.add(rotation, forKey: "rotation") }
         
         
-        let strokeColorAnimation = CABasicAnimation(keyPath: "strokeColor")
-        strokeColorAnimation.toValue = UIColor.cyan.cgColor
-        strokeColorAnimation.duration = 3
-        strokeColorAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-        // strokeColorAnimation.autoreverses = true
-        strokeColorAnimation.repeatCount = .greatestFiniteMagnitude
         
         let sublayers = self.cubeViews
             .map{ $0.layer.sublayers }
             .compactMap{ $0 }.flatMap{ $0 }
-            .filter{ $0.name! == "line" }
-        _ = sublayers.map{ $0.add(strokeColorAnimation, forKey: "strokeColorAnimation") }
-    }
-    
-    func animateCubeViews() {
-        for cube in cubeViews {
-            UIView.animate(withDuration: 1, delay: 1, options: [.curveLinear, .curveEaseIn], animations: {
-                let animation = CATransform3DMakeRotation(self.degreesToRadians(90), 0, 0, -10)
-                cube.layer.transform = animation
-                
-                // CATransaction.begin()
-                // CATransaction.setAnimationDuration(0.5)
-                // cube.layer.backgroundColor = UIColor.red.cgColor
-                //
-                // CATransaction.commit()
-                
-                for case let layer in cube.layer.sublayers! {
-                    if let shapeLayer = layer as? CAShapeLayer  {
-                        if shapeLayer.name! == "line" {
-                            
-                            //shapeLayer.transform = animation
-                            //shapeLayer.strokeColor = UIColor.red.cgColor
-                        }
-                    }
-                }
-            }, completion: nil)
+        
+        let lineSublayers = sublayers.filter{ $0.name! == "line" }.map{ $0 as? CAShapeLayer }.compactMap{ $0 }
+        let quarterSublayers = sublayers.filter{ $0.name! == "quarter" }.map{ $0 as? CAShapeLayer }.compactMap{ $0 }
+        
+        _ = quarterSublayers.map{ $0.add(rotation, forKey: "rotation") }
+        
+        for i in 0..<self.cubeViews.count {
+            let pathAnimation = CABasicAnimation(keyPath: "path")
+            pathAnimation.toValue = transformedPaths[i]
+            // pathAnimation.duration = 1.5
+            pathAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+            pathAnimation.autoreverses = true
+            //pathAnimation.repeatCount = .greatestFiniteMagnitude
+            
+            // change stroke color
+            let strokeColorAnimation = CABasicAnimation(keyPath: "strokeColor")
+            strokeColorAnimation.toValue = UIColor.white.cgColor
+            strokeColorAnimation.duration = 1.5
+            strokeColorAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+            
+            var animations = [CABasicAnimation]()
+            animations.append(rotation)
+            animations.append(pathAnimation)
+            animations.append(strokeColorAnimation)
+
+            let groupAnimations = CAAnimationGroup()
+            groupAnimations.duration = 1.5
+            groupAnimations.autoreverses = true
+            groupAnimations.animations = animations
+            groupAnimations.repeatCount = .greatestFiniteMagnitude
+            lineSublayers[i].add(groupAnimations, forKey: "groupAnimation")
+            //lineSublayers[i].add(pathAnimation, forKey: "pathAnimation")
         }
     }
     
@@ -132,14 +116,14 @@ private extension ViewController {
         
         let quarterPath = UIBezierPath(arcCenter:   coordinates.arcCenter,
                                        radius:      size,
-                                       startAngle:  coordinates.startAngle,
-                                       endAngle:    coordinates.endAngle,
+                                       startAngle:  coordinates.endAngle,
+                                       endAngle:    coordinates.startAngle,
                                        clockwise:   true)
         
         let transformedPath = UIBezierPath(arcCenter:   coordinates.transfromedCenter,
                                            radius:      size,
-                                           startAngle:  coordinates.transformedEndAngle,
-                                           endAngle:    coordinates.transformedStartAngle,
+                                           startAngle:  coordinates.transformedStartAngle,
+                                           endAngle:    coordinates.transformedEndAngle,
                                            clockwise:   true)
         transformedPaths.append(transformedPath.cgPath)
         
@@ -150,12 +134,13 @@ private extension ViewController {
         quarterLayer.name = "quarter"
         
         let linePath = UIBezierPath()
-        linePath.move(to: coordinates.startPoint)
-        linePath.addLine(to: coordinates.endPoint)
+        linePath.move(to: coordinates.endPoint)
+        linePath.addLine(to: coordinates.startPoint)
         
         let lineLayer = CAShapeLayer()
         lineLayer.path = linePath.cgPath
-        lineLayer.strokeColor = LayerProperties.strokeColor
+        lineLayer.strokeColor = UIColor.clear.cgColor
+//        lineLayer.strokeColor = LayerProperties.strokeColor
         lineLayer.lineWidth = LayerProperties.lineWidth
         lineLayer.name = "line"
         
