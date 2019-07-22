@@ -9,73 +9,52 @@
 import UIKit
 
 struct LayerProperties {
-    static let lineWidth: CGFloat = 1.2
+    static let lineWidth:   CGFloat = 1.2
     static let strokeColor: CGColor = UIColor.white.cgColor
+}
+
+enum Quarters: Int {
+    case first = 1, second, third, fourth
+}
+
+struct Arc {
+    let startAngle: CGFloat
+    let endAngle:   CGFloat
+    let center:     CGPoint
 }
 
 struct SublayersCoordinates {
     var startPoint: CGPoint
     var endPoint:   CGPoint
     
-    var startAngle: CGFloat
-    var endAngle:   CGFloat
-    var arcCenter:  CGPoint
+    var originArc:      Arc
+    var transformedArc: Arc
     
-    var transfromedCenter: CGPoint
-    var transformedStartAngle: CGFloat
-    var transformedEndAngle: CGFloat
-    
-    init(quarter: Int, bounds: CGRect) {
+    init(quarter: Quarters, bounds: CGRect) {
         switch quarter {
-        case 1:
-            startPoint = CGPoint(x: bounds.maxX, y: bounds.minY)
-            endPoint   = CGPoint(x: bounds.minX, y: bounds.maxY)
-            startAngle = 0
-            endAngle   = CGFloat.pi / 2
-            arcCenter  = CGPoint.zero
-            transfromedCenter = CGPoint(x: bounds.maxX, y: bounds.maxY)
-            transformedStartAngle = CGFloat.pi
-            transformedEndAngle = 3 * CGFloat.pi / 2
+        case .first:
+            startPoint     = CGPoint(x: bounds.maxX, y: bounds.minY)
+            endPoint       = CGPoint(x: bounds.minX, y: bounds.maxY)
+            originArc      = Arc(startAngle: 0, endAngle: CGFloat.pi/2, center: CGPoint(x: bounds.minX, y: bounds.minY))
+            transformedArc = Arc(startAngle: CGFloat.pi, endAngle: 3*CGFloat.pi/2, center: CGPoint(x: bounds.maxX, y: bounds.maxY))
             
-        case 2:
-            startPoint = CGPoint(x: bounds.maxX, y: bounds.maxY)
-            endPoint   = CGPoint(x: bounds.minX, y: bounds.minY)
-            startAngle = CGFloat.pi / 2
-            endAngle   = CGFloat.pi
-            arcCenter  = CGPoint(x: bounds.maxX, y: bounds.minY)
-            transfromedCenter = CGPoint(x: bounds.minX, y: bounds.maxY)
-            transformedStartAngle = 3 * CGFloat.pi / 2
-            transformedEndAngle = 2 * CGFloat.pi
+        case .second:
+            startPoint     = CGPoint(x: bounds.maxX, y: bounds.maxY)
+            endPoint       = CGPoint(x: bounds.minX, y: bounds.minY)
+            originArc      = Arc(startAngle: CGFloat.pi/2, endAngle: CGFloat.pi, center: CGPoint(x: bounds.maxX, y: bounds.minY))
+            transformedArc = Arc(startAngle: 3*CGFloat.pi/2, endAngle: 2*CGFloat.pi, center: CGPoint(x: bounds.minX, y: bounds.maxY))
             
-        case 3:
-            startPoint = CGPoint(x: bounds.minX, y: bounds.maxY)
-            endPoint   = CGPoint(x: bounds.maxX, y: bounds.minY)
-            startAngle = CGFloat.pi
-            endAngle   = 3 * CGFloat.pi / 2
-            arcCenter  = CGPoint(x: bounds.maxX, y: bounds.maxY)
-            transfromedCenter = CGPoint(x: bounds.minX, y: bounds.minY)
-            transformedStartAngle = 0
-            transformedEndAngle = CGFloat.pi / 2
+        case .third:
+            startPoint     = CGPoint(x: bounds.minX, y: bounds.maxY)
+            endPoint       = CGPoint(x: bounds.maxX, y: bounds.minY)
+            originArc      = Arc(startAngle: CGFloat.pi, endAngle: 3*CGFloat.pi/2, center: CGPoint(x: bounds.maxX, y: bounds.maxY))
+            transformedArc = Arc(startAngle: 0, endAngle: CGFloat.pi/2, center: CGPoint(x: bounds.minX, y: bounds.minY))
             
-        case 4:
+        case .fourth:
             startPoint = CGPoint(x: bounds.minX, y: bounds.minY)
             endPoint   = CGPoint(x: bounds.maxX, y: bounds.maxY)
-            startAngle = 3 * CGFloat.pi / 2
-            endAngle   = 2 * CGFloat.pi
-            arcCenter  = CGPoint(x: bounds.minX, y: bounds.maxY)
-            transfromedCenter = CGPoint(x: bounds.maxX, y: bounds.minY)
-            transformedStartAngle = CGFloat.pi / 2
-            transformedEndAngle = CGFloat.pi
-            
-        default:
-            startPoint = CGPoint(x: bounds.maxX, y: bounds.minY)
-            endPoint   = CGPoint(x: bounds.minX, y: bounds.maxY)
-            startAngle = 0
-            endAngle   = CGFloat.pi / 2
-            arcCenter  = CGPoint.zero
-            transfromedCenter = CGPoint(x: bounds.maxX, y: bounds.maxY)
-            transformedStartAngle = 3 * CGFloat.pi / 2
-            transformedEndAngle = 2 * CGFloat.pi
+            originArc      = Arc(startAngle: 3*CGFloat.pi/2, endAngle: 2*CGFloat.pi, center: CGPoint(x: bounds.minX, y: bounds.maxY))
+            transformedArc = Arc(startAngle: CGFloat.pi/2, endAngle: CGFloat.pi, center: CGPoint(x: bounds.maxX, y: bounds.minY))
         }
     }
 }
