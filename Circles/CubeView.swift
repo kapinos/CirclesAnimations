@@ -51,31 +51,10 @@ struct CubeView {
         
         let coordinates = SublayersCoordinates(quarter: quarterValue, bounds: cubeView.bounds)
         
-        let originStartAngle = self.animationType == .circle
-            ? coordinates.originArc.endAngle : coordinates.originArc.startAngle
-        let originEndAngle = self.animationType == .circle
-            ? coordinates.originArc.startAngle : coordinates.originArc.endAngle
-        
-        let quarterPath = UIBezierPath(arcCenter:   coordinates.originArc.center,
-                                       radius:      size,
-                                       startAngle:  originStartAngle,
-                                       endAngle:    originEndAngle,
-                                       clockwise:   true)
-
-        let transformedStartAngle = self.animationType == .ugly
-            ? coordinates.transformedArc.endAngle : coordinates.transformedArc.startAngle
-        let transformedEndAngle = self.animationType == .ugly
-            ? coordinates.transformedArc.startAngle : coordinates.transformedArc.endAngle
-        
-        let transformedPath = UIBezierPath(arcCenter:   coordinates.transformedArc.center,
-                                           radius:      size,
-                                           startAngle:  transformedStartAngle,
-                                           endAngle:    transformedEndAngle,
-                                           clockwise:   true)
-        transformedPaths.append(transformedPath.cgPath)
+        transformedPaths.append(getTransformedArcPath(for: coordinates).cgPath)
         
         let arcLayer = CAShapeLayer()
-        arcLayer.path = quarterPath.cgPath
+        arcLayer.path = getOriginArcPath(for: coordinates).cgPath
         arcLayer.strokeColor = LayerProperties.strokeColor
         arcLayer.lineWidth = LayerProperties.lineWidth
         arcLayer.name = "arc"
@@ -86,8 +65,7 @@ struct CubeView {
         
         let lineLayer = CAShapeLayer()
         lineLayer.path = linePath.cgPath
-        lineLayer.strokeColor = self.animationType == .circle
-            ? UIColor.clear.cgColor : LayerProperties.strokeColor
+        lineLayer.strokeColor = self.animationType == .circle ? UIColor.clear.cgColor : LayerProperties.strokeColor
         lineLayer.lineWidth = LayerProperties.lineWidth
         lineLayer.name = "line"
 
@@ -95,11 +73,45 @@ struct CubeView {
         cubeView.layer.addSublayer(lineLayer)
     }
     
+    private func getOriginArcPath(for coordinates: SublayersCoordinates) -> UIBezierPath {
+        let originStartAngle = self.animationType == .circle
+            ? coordinates.originArc.endAngle
+            : coordinates.originArc.startAngle
+        
+        let originEndAngle = self.animationType == .circle
+            ? coordinates.originArc.startAngle
+            : coordinates.originArc.endAngle
+        
+        let arcPath = UIBezierPath(arcCenter:   coordinates.originArc.center,
+                                   radius:      size,
+                                   startAngle:  originStartAngle,
+                                   endAngle:    originEndAngle,
+                                   clockwise:   true)
+         return arcPath
+    }
+    
+    private func getTransformedArcPath(for coordinates: SublayersCoordinates) -> UIBezierPath {
+        let transformedStartAngle = self.animationType == .ugly
+            ? coordinates.transformedArc.endAngle : coordinates.transformedArc.startAngle
+        let transformedEndAngle = self.animationType == .ugly
+            ? coordinates.transformedArc.startAngle : coordinates.transformedArc.endAngle
+        
+        let transformedPath = UIBezierPath(arcCenter:   coordinates.transformedArc.center,
+                                           radius:      size,
+                                           startAngle:  transformedStartAngle,
+                                           endAngle:    transformedEndAngle,
+                                           clockwise:   true)
+         return transformedPath
+    }
+    
+    
     private func degreesToRadians(_ degrees: CGFloat) -> CGFloat {
         return degrees * CGFloat(Double.pi) / 180.0
     }
 }
 
+
+// MARK: - Public
 extension CubeView {
     mutating func appendTo(superview: UIView, on point: CGPoint) {
         let points = [
@@ -110,9 +122,11 @@ extension CubeView {
         ]
         
         for i in 0..<amountViews {
-            views[i].frame = CGRect(origin: points[i], size: CGSize(width: size, height: size))
-            addLayersTo(cubeView: views[i], in: i+1)
-            superview.addSubview(views[i])
+            if let view = views[safe: i], let point = points[safe: i] {
+                view.frame = CGRect(origin: point, size: CGSize(width: size, height: size))
+                addLayersTo(cubeView: view, in: i+1)
+                superview.addSubview(view)
+            }
         }
     }
     
@@ -123,6 +137,16 @@ extension CubeView {
         case .flower, .ugly:
             self.basicAnimation(with: duration)
         }
+    }
+    
+    func stopAnimation() {
+//        let arcs = getLayers(by: "arc")
+//        _ = arcs.map{ $0.removeAllAnimations() }
+        
+//        CATransaction.begin()
+//        CATransaction.setDisableActions(true)
+        _ = self.views.map{ $0.layer.removeAllAnimations() }
+//        CATransaction.commit()
     }
 }
 
@@ -135,14 +159,16 @@ private extension CubeView {
         
         let lineSublayers = getLayers(by: "line")
         for i in 0..<amountViews {
-            let pathAnimation = CABasicAnimation(keyPath: "path")
-            pathAnimation.toValue = transformedPaths[i]
-            pathAnimation.duration = duration
-            pathAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
-            pathAnimation.autoreverses = true
-            pathAnimation.repeatCount = .greatestFiniteMagnitude
-            
-            lineSublayers[i].add(pathAnimation, forKey: "pathAnimation")
+            if let lineSublayer = lineSublayers[safe: i], let path = transformedPaths[safe: i] {
+                let pathAnimation = CABasicAnimation(keyPath: "path")
+                pathAnimation.toValue = path
+                pathAnimation.duration = duration
+                pathAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
+                pathAnimation.autoreverses = true
+                pathAnimation.repeatCount = .greatestFiniteMagnitude
+                
+                lineSublayer.add(pathAnimation, forKey: "pathAnimation")
+            }
         }
     }
     
@@ -154,28 +180,23 @@ private extension CubeView {
         let lineSublayers = getLayers(by: "line")
         
         for i in 0..<self.amountViews {
-            let pathAnimation = CABasicAnimation(keyPath: "path")
-            pathAnimation.toValue = transformedPaths[i]
-            pathAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-            pathAnimation.autoreverses = true
-            
-            // change stroke color
-            let strokeColorAnimation = CABasicAnimation(keyPath: "strokeColor")
-            strokeColorAnimation.toValue = LayerProperties.strokeColor
-            strokeColorAnimation.duration = duration
-            strokeColorAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-            
-            var animations = [CABasicAnimation]()
-            animations.append(rotation)
-            animations.append(pathAnimation)
-            animations.append(strokeColorAnimation)
-            
-            let groupAnimations = CAAnimationGroup()
-            groupAnimations.duration = duration
-            groupAnimations.autoreverses = true
-            groupAnimations.animations = animations
-            groupAnimations.repeatCount = .greatestFiniteMagnitude
-            lineSublayers[i].add(groupAnimations, forKey: "groupAnimation")
+            if let lineSublayer = lineSublayers[safe: i], let path = transformedPaths[safe: i] {
+                let pathAnimation = CABasicAnimation(keyPath: "path")
+                pathAnimation.toValue = path
+                pathAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+                pathAnimation.autoreverses = true
+                
+                var animations = [CABasicAnimation]()
+                animations.append(rotation)
+                animations.append(pathAnimation)
+                
+                let groupAnimations = CAAnimationGroup()
+                groupAnimations.duration = duration
+                groupAnimations.autoreverses = true
+                groupAnimations.animations = animations
+                groupAnimations.repeatCount = .greatestFiniteMagnitude
+                lineSublayer.add(groupAnimations, forKey: "groupAnimation")
+            }
         }
     }
 }

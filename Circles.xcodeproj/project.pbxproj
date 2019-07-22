@@ -14,6 +14,7 @@
 		5700B26C22DC946E00BF775F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5700B26A22DC946E00BF775F /* LaunchScreen.storyboard */; };
 		5700B27422DE1D6300BF775F /* Sublayers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5700B27322DE1D6300BF775F /* Sublayers.swift */; };
 		57FF792822E5CB4800618F04 /* CubeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FF792722E5CB4800618F04 /* CubeView.swift */; };
+		57FF792A22E5F7B300618F04 /* Array+Indices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FF792922E5F7B300618F04 /* Array+Indices.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		5700B26D22DC946E00BF775F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5700B27322DE1D6300BF775F /* Sublayers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sublayers.swift; sourceTree = "<group>"; };
 		57FF792722E5CB4800618F04 /* CubeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeView.swift; sourceTree = "<group>"; };
+		57FF792922E5F7B300618F04 /* Array+Indices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Indices.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				5700B26822DC946E00BF775F /* Assets.xcassets */,
 				5700B26A22DC946E00BF775F /* LaunchScreen.storyboard */,
 				5700B26D22DC946E00BF775F /* Info.plist */,
+				57FF792922E5F7B300618F04 /* Array+Indices.swift */,
 			);
 			path = Circles;
 			sourceTree = "<group>";
@@ -142,6 +145,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5700B26422DC946B00BF775F /* ViewController.swift in Sources */,
+				57FF792A22E5F7B300618F04 /* Array+Indices.swift in Sources */,
 				5700B27422DE1D6300BF775F /* Sublayers.swift in Sources */,
 				5700B26222DC946B00BF775F /* AppDelegate.swift in Sources */,
 				57FF792822E5CB4800618F04 /* CubeView.swift in Sources */,
