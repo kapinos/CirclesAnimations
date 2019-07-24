@@ -12,6 +12,7 @@ class AnimatableFlowerCubeView: UIView {
     private var cubeViews: [CubeView] = []
     private var size: CGFloat = 50
     private var amount = 4
+    
     private(set) var isAnimate = false
     
     override init(frame: CGRect) {
@@ -20,7 +21,6 @@ class AnimatableFlowerCubeView: UIView {
         if frame.size.width != frame.size.height {
             assertionFailure("View's frame has to be square")
             return
-            // preconditionFailure("View has to be square")
         }
         
         fillWithSubviews()
@@ -38,16 +38,16 @@ private extension AnimatableFlowerCubeView {
         self.size = self.bounds.size.width / CGFloat(amount)
         
         for _ in 0..<amount*amount {
-            cubeViews.append(CubeView(size: self.size, with: .flower))
+            let cubeView = CubeView(frame: CGRect(origin: .zero, size: CGSize(width: self.size, height: self.size)))
+            cubeView.animationType = .flower
+            cubeViews.append(cubeView)
         }
-        
-        let startPoint = CGPoint(x: size/2, y: size/2)
         
         var j = 0
         for i in 0..<amount {
             for y in 0..<amount {
-                let point = CGPoint(x: startPoint.x + size * CGFloat(y), y: startPoint.y + size * CGFloat(i))
-                cubeViews[j].appendTo(superview: self, on: point)
+                cubeViews[j].frame.origin = CGPoint(x: size * CGFloat(y), y: size * CGFloat(i))
+                self.addSubview(cubeViews[j])
                 j += 1
             }
         }

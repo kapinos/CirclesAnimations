@@ -12,26 +12,56 @@ enum AnimationType {
     case fan, flower, ugly
 }
 
-struct CubeView {
-    private let size: CGFloat
+class CubeView: UIView {
+    var animationType: AnimationType = .fan {
+        didSet {
+            self.fillView()
+        }
+    }
+    
+    private(set) var isAnimate = false    
+    private var size: CGFloat = 50
     private var views: [UIView] = []
     private var transformedPaths: [CGPath] = []
     private let amountViews = 4
-    private let animationType: AnimationType
     
-    init(size: CGFloat, with animationType: AnimationType) {
-        self.size = size/2
-        self.animationType = animationType
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         
-        for _ in 0..<amountViews {
-            self.views.append(UIView())
+        if frame.size.width != frame.size.height {
+            assertionFailure("View's frame has to be square")
+            return
         }
+        
+        self.size = frame.size.width / 2
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 
 
 // MARK: - Private
 private extension CubeView {
+    func fillView() {
+        let points = [
+            CGPoint(x: center.x,        y: center.y),
+            CGPoint(x: center.x - size, y: center.y),
+            CGPoint(x: center.x - size, y: center.y - size),
+            CGPoint(x: center.x,        y: center.y - size),
+        ]
+        
+        for i in 0..<amountViews {
+            if let point = points[safe: i] {
+                let view = UIView(frame: CGRect(origin: point, size: CGSize(width: size, height: size)))
+                addLayersTo(cubeView: view, in: i+1)
+                self.views.append(view)
+                self.addSubview(view)
+            }
+        }
+    }
+    
     func getRotationAnimation(with duration: Double) -> CABasicAnimation {
         let rotation = CABasicAnimation(keyPath: "transform.rotation")
         rotation.toValue = NSNumber(value:  Double.pi/2)
@@ -50,7 +80,7 @@ private extension CubeView {
         return sublayers
     }
     
-    mutating func addLayersTo(cubeView: UIView, in quarter: Int) {
+    func addLayersTo(cubeView: UIView, in quarter: Int) {
         let quarterValue = Quarters(rawValue: quarter) ?? Quarters.first
         
         let coordinates = SublayersCoordinates(quarter: quarterValue, bounds: cubeView.bounds)
@@ -111,35 +141,35 @@ private extension CubeView {
     func degreesToRadians(_ degrees: CGFloat) -> CGFloat {
         return degrees * CGFloat(Double.pi) / 180.0
     }
+    
+    func stopSublayerAnimations(layer: CALayer) {
+        layer.sublayers?.forEach({ layer in
+            stopSublayerAnimations(layer: layer)
+            layer.removeAllAnimations()
+        })
+    }
 }
 
 
 // MARK: - Public
 extension CubeView {
-    mutating func appendTo(superview: UIView, on point: CGPoint) {
-        let points = [
-            CGPoint(x: point.x,        y: point.y),
-            CGPoint(x: point.x - size, y: point.y),
-            CGPoint(x: point.x - size, y: point.y - size),
-            CGPoint(x: point.x,        y: point.y - size),
-        ]
-        
-        for i in 0..<amountViews {
-            if let view = views[safe: i], let point = points[safe: i] {
-                view.frame = CGRect(origin: point, size: CGSize(width: size, height: size))
-                addLayersTo(cubeView: view, in: i+1)
-                superview.addSubview(view)
-            }
-        }
-    }
-    
     func animate(duration: Double = 1.5) {
+        guard !isAnimate else { return }
+        isAnimate = true
+        
         switch self.animationType {
         case .fan:
-            self.circleAnimation(with: duration)
+            self.fanAnimation(with: duration)
         case .flower, .ugly:
             self.basicAnimation(with: duration)
         }
+    }
+    
+    func stopAnimation() {
+        guard isAnimate else { return }
+        isAnimate = false
+        
+        self.stopSublayerAnimations(layer: self.layer)
     }
 }
 
@@ -151,8 +181,6 @@ private extension CubeView {
         self.views.forEach { view in
             view.layer.add(rotation, forKey: "rotation")
         }
-        
-        //_ = self.views.map{ $0.layer.add(rotation, forKey: "rotation") }
         
         let lineSublayers = getLayers(by: "line")
         for i in 0..<amountViews {
@@ -169,13 +197,12 @@ private extension CubeView {
         }
     }
     
-    func circleAnimation(with duration: Double) {
+    func fanAnimation(with duration: Double) {
         let rotation = getRotationAnimation(with: duration)
         let arcSublayers = getLayers(by: "arc")
         arcSublayers.forEach { shapeLayer in
             shapeLayer.add(rotation, forKey: "rotation")
         }
-//        _ = arcSublayers.map{ $0.add(rotation, forKey: "rotation") }
         
         let lineSublayers = getLayers(by: "line")
         
@@ -186,9 +213,15 @@ private extension CubeView {
                 pathAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
                 pathAnimation.autoreverses = true
                 
+                let strokeColorAnimation = CABasicAnimation(keyPath: "strokeColor")
+                strokeColorAnimation.toValue = UIColor.white.cgColor
+                strokeColorAnimation.duration = 1.5
+                strokeColorAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+
                 var animations = [CABasicAnimation]()
                 animations.append(rotation)
                 animations.append(pathAnimation)
+                animations.append(strokeColorAnimation)
                 
                 let groupAnimations = CAAnimationGroup()
                 groupAnimations.duration = duration

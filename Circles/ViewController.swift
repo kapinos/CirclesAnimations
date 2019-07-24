@@ -12,6 +12,8 @@ class ViewController: UIViewController {
 
     var flowerView: AnimatableFlowerCubeView?
     var fanView: CubeView?
+    
+    //var isAnimation = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,9 +23,9 @@ class ViewController: UIViewController {
         flowerView = AnimatableFlowerCubeView(frame: CGRect(origin: .zero, size: CGSize(width: 170, height: 170)))
         self.view.addSubview(flowerView!)
         
-        fanView = CubeView(size: 100, with: .fan)
-        fanView?.appendTo(superview: self.view, on: self.view.center)
-        
+        fanView = CubeView(frame: CGRect(origin: .zero, size: CGSize(width: 100, height: 100)))
+        fanView?.animationType = .fan
+        self.view.addSubview(fanView!)
         
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapAction(sender:)))
         self.view.isUserInteractionEnabled = true
@@ -37,12 +39,20 @@ class ViewController: UIViewController {
         let center = self.view.center
         
         self.flowerView?.center = CGPoint(x: center.x, y: 40+170/2)
-//        self.fanView?.cente
+        self.fanView?.center = center
     }
 
     
     @objc func tapAction(sender: UITapGestureRecognizer) {
         let touchPoint = sender.location(in: self.view)
+        
+        if (fanView?.frame.contains(touchPoint))! {
+            if fanView?.isAnimate == false {
+                fanView?.animate()
+            } else {
+                fanView?.stopAnimation()
+            }
+        }
         
         if (flowerView?.frame.contains(touchPoint))! {
             if flowerView?.isAnimate == false {
@@ -52,4 +62,5 @@ class ViewController: UIViewController {
             }
         }
     }
+    
 }
