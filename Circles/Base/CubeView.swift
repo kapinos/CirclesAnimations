@@ -8,8 +8,8 @@
 
 import UIKit
 
-enum AnimationType: Int {
-    case circle = 1, flower, ugly
+enum AnimationType {
+    case fan, flower, ugly
 }
 
 struct CubeView {
@@ -27,8 +27,12 @@ struct CubeView {
             self.views.append(UIView())
         }
     }
-    
-    private func getRotationAnimation(with duration: Double) -> CABasicAnimation {
+}
+
+
+// MARK: - Private
+private extension CubeView {
+    func getRotationAnimation(with duration: Double) -> CABasicAnimation {
         let rotation = CABasicAnimation(keyPath: "transform.rotation")
         rotation.toValue = NSNumber(value:  Double.pi/2)
         rotation.duration = duration
@@ -38,7 +42,7 @@ struct CubeView {
         return rotation
     }
     
-    private func getLayers(by name: String) -> [CAShapeLayer] {
+    func getLayers(by name: String) -> [CAShapeLayer] {
         let sublayers = self.views
             .map{ $0.layer.sublayers }
             .compactMap{ $0 }.flatMap{ $0 }.filter{ $0.name! == name }.map{ $0 as? CAShapeLayer }.compactMap{ $0 }
@@ -46,7 +50,7 @@ struct CubeView {
         return sublayers
     }
     
-    private mutating func addLayersTo(cubeView: UIView, in quarter: Int) {
+    mutating func addLayersTo(cubeView: UIView, in quarter: Int) {
         let quarterValue = Quarters(rawValue: quarter) ?? Quarters.first
         
         let coordinates = SublayersCoordinates(quarter: quarterValue, bounds: cubeView.bounds)
@@ -65,20 +69,20 @@ struct CubeView {
         
         let lineLayer = CAShapeLayer()
         lineLayer.path = linePath.cgPath
-        lineLayer.strokeColor = self.animationType == .circle ? UIColor.clear.cgColor : LayerProperties.strokeColor
+        lineLayer.strokeColor = self.animationType == .fan ? UIColor.clear.cgColor : LayerProperties.strokeColor
         lineLayer.lineWidth = LayerProperties.lineWidth
         lineLayer.name = "line"
-
+        
         cubeView.layer.addSublayer(arcLayer)
         cubeView.layer.addSublayer(lineLayer)
     }
     
-    private func getOriginArcPath(for coordinates: SublayersCoordinates) -> UIBezierPath {
-        let originStartAngle = self.animationType == .circle
+    func getOriginArcPath(for coordinates: SublayersCoordinates) -> UIBezierPath {
+        let originStartAngle = self.animationType == .fan
             ? coordinates.originArc.endAngle
             : coordinates.originArc.startAngle
         
-        let originEndAngle = self.animationType == .circle
+        let originEndAngle = self.animationType == .fan
             ? coordinates.originArc.startAngle
             : coordinates.originArc.endAngle
         
@@ -87,10 +91,10 @@ struct CubeView {
                                    startAngle:  originStartAngle,
                                    endAngle:    originEndAngle,
                                    clockwise:   true)
-         return arcPath
+        return arcPath
     }
     
-    private func getTransformedArcPath(for coordinates: SublayersCoordinates) -> UIBezierPath {
+    func getTransformedArcPath(for coordinates: SublayersCoordinates) -> UIBezierPath {
         let transformedStartAngle = self.animationType == .ugly
             ? coordinates.transformedArc.endAngle : coordinates.transformedArc.startAngle
         let transformedEndAngle = self.animationType == .ugly
@@ -101,11 +105,10 @@ struct CubeView {
                                            startAngle:  transformedStartAngle,
                                            endAngle:    transformedEndAngle,
                                            clockwise:   true)
-         return transformedPath
+        return transformedPath
     }
     
-    
-    private func degreesToRadians(_ degrees: CGFloat) -> CGFloat {
+    func degreesToRadians(_ degrees: CGFloat) -> CGFloat {
         return degrees * CGFloat(Double.pi) / 180.0
     }
 }
@@ -132,21 +135,11 @@ extension CubeView {
     
     func animate(duration: Double = 1.5) {
         switch self.animationType {
-        case .circle:
+        case .fan:
             self.circleAnimation(with: duration)
         case .flower, .ugly:
             self.basicAnimation(with: duration)
         }
-    }
-    
-    func stopAnimation() {
-//        let arcs = getLayers(by: "arc")
-//        _ = arcs.map{ $0.removeAllAnimations() }
-        
-//        CATransaction.begin()
-//        CATransaction.setDisableActions(true)
-        _ = self.views.map{ $0.layer.removeAllAnimations() }
-//        CATransaction.commit()
     }
 }
 
@@ -155,7 +148,11 @@ extension CubeView {
 private extension CubeView {
     func basicAnimation(with duration: Double) {
         let rotation = getRotationAnimation(with: duration)
-        _ = self.views.map{ $0.layer.add(rotation, forKey: "rotation") }
+        self.views.forEach { view in
+            view.layer.add(rotation, forKey: "rotation")
+        }
+        
+        //_ = self.views.map{ $0.layer.add(rotation, forKey: "rotation") }
         
         let lineSublayers = getLayers(by: "line")
         for i in 0..<amountViews {
@@ -175,7 +172,10 @@ private extension CubeView {
     func circleAnimation(with duration: Double) {
         let rotation = getRotationAnimation(with: duration)
         let arcSublayers = getLayers(by: "arc")
-        _ = arcSublayers.map{ $0.add(rotation, forKey: "rotation") }
+        arcSublayers.forEach { shapeLayer in
+            shapeLayer.add(rotation, forKey: "rotation")
+        }
+//        _ = arcSublayers.map{ $0.add(rotation, forKey: "rotation") }
         
         let lineSublayers = getLayers(by: "line")
         
