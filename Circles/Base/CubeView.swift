@@ -9,7 +9,7 @@
 import UIKit
 
 enum AnimationType {
-    case fan, flower, ugly
+    case fan, cubicle, flower
 }
 
 class CubeView: UIView {
@@ -62,16 +62,6 @@ private extension CubeView {
         }
     }
     
-    func getRotationAnimation(with duration: Double) -> CABasicAnimation {
-        let rotation = CABasicAnimation(keyPath: "transform.rotation")
-        rotation.toValue = NSNumber(value:  Double.pi/2)
-        rotation.duration = duration
-        rotation.repeatCount = .greatestFiniteMagnitude
-        rotation.autoreverses = true
-        rotation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-        return rotation
-    }
-    
     func getLayers(by name: String) -> [CAShapeLayer] {
         let sublayers = self.views
             .map{ $0.layer.sublayers }
@@ -91,6 +81,7 @@ private extension CubeView {
         arcLayer.path = getOriginArcPath(for: coordinates).cgPath
         arcLayer.strokeColor = LayerProperties.strokeColor
         arcLayer.lineWidth = LayerProperties.lineWidth
+        arcLayer.fillColor = UIColor.clear.cgColor
         arcLayer.name = "arc"
         
         let linePath = UIBezierPath()
@@ -100,6 +91,8 @@ private extension CubeView {
         let lineLayer = CAShapeLayer()
         lineLayer.path = linePath.cgPath
         lineLayer.strokeColor = self.animationType == .fan ? UIColor.clear.cgColor : LayerProperties.strokeColor
+        lineLayer.fillColor = UIColor.clear.cgColor
+        
         lineLayer.lineWidth = LayerProperties.lineWidth
         lineLayer.name = "line"
         
@@ -125,10 +118,13 @@ private extension CubeView {
     }
     
     func getTransformedArcPath(for coordinates: SublayersCoordinates) -> UIBezierPath {
-        let transformedStartAngle = self.animationType == .ugly
-            ? coordinates.transformedArc.endAngle : coordinates.transformedArc.startAngle
-        let transformedEndAngle = self.animationType == .ugly
-            ? coordinates.transformedArc.startAngle : coordinates.transformedArc.endAngle
+        let transformedStartAngle = self.animationType == .flower
+    
+            ? coordinates.transformedArc.endAngle
+            : coordinates.transformedArc.startAngle
+        let transformedEndAngle = self.animationType == .flower
+            ? coordinates.transformedArc.startAngle
+            : coordinates.transformedArc.endAngle
         
         let transformedPath = UIBezierPath(arcCenter:   coordinates.transformedArc.center,
                                            radius:      size,
@@ -153,15 +149,25 @@ private extension CubeView {
 
 // MARK: - Public
 extension CubeView {
-    func animate(duration: Double = 1.5) {
+    func checkForTap(by point: CGPoint) {
+        guard self.frame.contains(point) else { return }
+        
+        if isAnimate == false {
+            animate()
+        } else {
+            stopAnimation()
+        }
+    }
+    
+    func animate(duration: Double = 2.5) {
         guard !isAnimate else { return }
         isAnimate = true
         
-        switch self.animationType {
+        switch animationType {
         case .fan:
-            self.fanAnimation(with: duration)
-        case .flower, .ugly:
-            self.basicAnimation(with: duration)
+            fanAnimation(with: duration)
+        case .cubicle, .flower:
+            basicAnimation(with: duration)
         }
     }
     
@@ -169,7 +175,7 @@ extension CubeView {
         guard isAnimate else { return }
         isAnimate = false
         
-        self.stopSublayerAnimations(layer: self.layer)
+        stopSublayerAnimations(layer: self.layer)
     }
 }
 
@@ -210,13 +216,13 @@ private extension CubeView {
             if let lineSublayer = lineSublayers[safe: i], let path = transformedPaths[safe: i] {
                 let pathAnimation = CABasicAnimation(keyPath: "path")
                 pathAnimation.toValue = path
-                pathAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+                pathAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeIn)
                 pathAnimation.autoreverses = true
                 
                 let strokeColorAnimation = CABasicAnimation(keyPath: "strokeColor")
                 strokeColorAnimation.toValue = UIColor.white.cgColor
-                strokeColorAnimation.duration = 1.5
-                strokeColorAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+                strokeColorAnimation.duration = duration * 1.5
+                strokeColorAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeIn)
 
                 var animations = [CABasicAnimation]()
                 animations.append(rotation)
@@ -231,5 +237,15 @@ private extension CubeView {
                 lineSublayer.add(groupAnimations, forKey: "groupAnimation")
             }
         }
+    }
+    
+    func getRotationAnimation(with duration: Double) -> CABasicAnimation {
+        let rotation = CABasicAnimation(keyPath: "transform.rotation")
+        rotation.toValue = NSNumber(value:  Double.pi/2)
+        rotation.duration = duration
+        rotation.repeatCount = .greatestFiniteMagnitude
+        rotation.autoreverses = true
+        rotation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeIn)
+        return rotation
     }
 }

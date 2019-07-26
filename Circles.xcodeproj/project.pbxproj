@@ -8,20 +8,20 @@
 
 /* Begin PBXBuildFile section */
 		5700B26222DC946B00BF775F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5700B26122DC946B00BF775F /* AppDelegate.swift */; };
-		5700B26422DC946B00BF775F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5700B26322DC946B00BF775F /* ViewController.swift */; };
+		5700B26422DC946B00BF775F /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5700B26322DC946B00BF775F /* MainViewController.swift */; };
 		5700B26722DC946B00BF775F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5700B26522DC946B00BF775F /* Main.storyboard */; };
 		5700B26922DC946E00BF775F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5700B26822DC946E00BF775F /* Assets.xcassets */; };
 		5700B26C22DC946E00BF775F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5700B26A22DC946E00BF775F /* LaunchScreen.storyboard */; };
 		5700B27422DE1D6300BF775F /* Sublayers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5700B27322DE1D6300BF775F /* Sublayers.swift */; };
 		57FF792822E5CB4800618F04 /* CubeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FF792722E5CB4800618F04 /* CubeView.swift */; };
 		57FF792A22E5F7B300618F04 /* Array+Indices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FF792922E5F7B300618F04 /* Array+Indices.swift */; };
-		57FF792D22E771C600618F04 /* AnimatableFlowerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FF792C22E771C600618F04 /* AnimatableFlowerView.swift */; };
+		57FF792D22E771C600618F04 /* AnimatableCubicleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FF792C22E771C600618F04 /* AnimatableCubicleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		5700B25E22DC946B00BF775F /* Circles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Circles.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5700B26122DC946B00BF775F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		5700B26322DC946B00BF775F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		5700B26322DC946B00BF775F /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		5700B26622DC946B00BF775F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		5700B26822DC946E00BF775F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5700B26B22DC946E00BF775F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -29,7 +29,7 @@
 		5700B27322DE1D6300BF775F /* Sublayers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sublayers.swift; sourceTree = "<group>"; };
 		57FF792722E5CB4800618F04 /* CubeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeView.swift; sourceTree = "<group>"; };
 		57FF792922E5F7B300618F04 /* Array+Indices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Indices.swift"; sourceTree = "<group>"; };
-		57FF792C22E771C600618F04 /* AnimatableFlowerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableFlowerView.swift; sourceTree = "<group>"; };
+		57FF792C22E771C600618F04 /* AnimatableCubicleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableCubicleView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,7 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				5700B26122DC946B00BF775F /* AppDelegate.swift */,
-				5700B26322DC946B00BF775F /* ViewController.swift */,
+				5700B26322DC946B00BF775F /* MainViewController.swift */,
 				57FF792E22E771D600618F04 /* Base */,
 				5700B26522DC946B00BF775F /* Main.storyboard */,
 				57FF792F22E771E300618F04 /* Supporting Files */,
@@ -83,7 +83,7 @@
 		57FF792E22E771D600618F04 /* Base */ = {
 			isa = PBXGroup;
 			children = (
-				57FF792C22E771C600618F04 /* AnimatableFlowerView.swift */,
+				57FF792C22E771C600618F04 /* AnimatableCubicleView.swift */,
 				57FF792722E5CB4800618F04 /* CubeView.swift */,
 				5700B27322DE1D6300BF775F /* Sublayers.swift */,
 			);
@@ -171,10 +171,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5700B26422DC946B00BF775F /* ViewController.swift in Sources */,
+				5700B26422DC946B00BF775F /* MainViewController.swift in Sources */,
 				57FF792A22E5F7B300618F04 /* Array+Indices.swift in Sources */,
 				5700B27422DE1D6300BF775F /* Sublayers.swift in Sources */,
-				57FF792D22E771C600618F04 /* AnimatableFlowerView.swift in Sources */,
+				57FF792D22E771C600618F04 /* AnimatableCubicleView.swift in Sources */,
 				5700B26222DC946B00BF775F /* AppDelegate.swift in Sources */,
 				57FF792822E5CB4800618F04 /* CubeView.swift in Sources */,
 			);

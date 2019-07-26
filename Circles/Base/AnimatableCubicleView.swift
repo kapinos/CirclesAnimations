@@ -1,5 +1,5 @@
 //
-//  AnimatableFlowerView.swift
+//  AnimatableCubicleView.swift
 //  Circles
 //
 //  Created by Anastasia Kapinos on 7/23/19.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AnimatableFlowerCubeView: UIView {
+class AnimatableCubicleView: UIView {
     private var cubeViews: [CubeView] = []
     private var size: CGFloat = 50
     private var amount = 4
@@ -33,13 +33,13 @@ class AnimatableFlowerCubeView: UIView {
 
 
 // MARK: - Private
-private extension AnimatableFlowerCubeView {
+private extension AnimatableCubicleView {
     func fillWithSubviews() {
         self.size = self.bounds.size.width / CGFloat(amount)
         
         for _ in 0..<amount*amount {
             let cubeView = CubeView(frame: CGRect(origin: .zero, size: CGSize(width: self.size, height: self.size)))
-            cubeView.animationType = .flower
+            cubeView.animationType = .cubicle
             cubeViews.append(cubeView)
         }
         
@@ -53,20 +53,10 @@ private extension AnimatableFlowerCubeView {
         }
     }
     
-    func stopSublayerAnimations(layer: CALayer) {
-        layer.sublayers?.forEach({ layer in
-            stopSublayerAnimations(layer: layer)
-            layer.removeAllAnimations()
-        })
-    }
-}
-
-
-// MARK: - Public
-extension AnimatableFlowerCubeView {
     func animate() {
         guard !isAnimate else { return }
         isAnimate = true
+        
         self.cubeViews.forEach { view in
             view.animate()
         }
@@ -76,7 +66,24 @@ extension AnimatableFlowerCubeView {
         guard isAnimate else { return }
         isAnimate = false
         
-        stopSublayerAnimations(layer: self.layer)
+        self.cubeViews.forEach{ view in
+            view.stopAnimation()
+        }
     }
 }
 
+
+// MARK: - Public
+extension AnimatableCubicleView {
+    func checkForTap(by point: CGPoint) {
+        guard self.frame.contains(point) else { return }
+        
+//        if self.frame.contains(point) {
+            if !isAnimate {
+                animate()
+            } else {
+                stopAnimation()
+            }
+//        }
+    }
+}
