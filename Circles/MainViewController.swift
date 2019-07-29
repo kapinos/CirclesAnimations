@@ -11,9 +11,9 @@ import UIKit
 class MainViewController: UIViewController {
 
     // MARK: - Properties
-    private var fanView: CubeView?
-    private var cubicleView: AnimatableCubicleView?
-    private var flowerView: CubeView?
+    private var fanView: CubeView!
+    private var cubicleView: AnimatableCubicleView!
+    private var flowerView: CubeView!
     
     private let viewSize: CGFloat = 100
 
@@ -35,15 +35,15 @@ class MainViewController: UIViewController {
         let center = self.view.center
         let shift = 40 + viewSize*1.5
         
-        if (orientation == .landscapeLeft || orientation == .landscapeRight) {
-            self.fanView?.center    = CGPoint(x: shift, y: center.y)
-            self.cubicleView?.center = center
-            self.flowerView?.center   = CGPoint(x: self.view.bounds.width - shift, y: center.y)
+        if orientation == .landscapeLeft || orientation == .landscapeRight {
+            fanView.center      = CGPoint(x: shift, y: center.y)
+            cubicleView.center  = center
+            flowerView.center   = CGPoint(x: self.view.bounds.width - shift, y: center.y)
         }
-        else if (orientation == .portrait || orientation == .portraitUpsideDown) {
-            self.fanView?.center    = CGPoint(x: center.x, y: shift)
-            self.cubicleView?.center = center
-            self.flowerView?.center   = CGPoint(x: center.x, y: self.view.bounds.height - shift)
+        else if orientation == .portrait || orientation == .portraitUpsideDown {
+            fanView.center     = CGPoint(x: center.x, y: shift)
+            cubicleView.center = center
+            flowerView.center  = CGPoint(x: center.x, y: self.view.bounds.height - shift)
         }
     }
     
@@ -63,22 +63,22 @@ private extension MainViewController {
     @objc func tapAction(sender: UITapGestureRecognizer) {
         let touchPoint = sender.location(in: self.view)
         
-        fanView?.checkForTap(by: touchPoint)
-        flowerView?.checkForTap(by: touchPoint)
-        cubicleView?.checkForTap(by: touchPoint)
+        fanView.checkForTap(by: touchPoint)
+        flowerView.checkForTap(by: touchPoint)
+        cubicleView.checkForTap(by: touchPoint)
     }
     
     func addAnimationSubviews() {
         fanView = CubeView(frame: CGRect(origin: .zero, size: CGSize(width: viewSize, height: viewSize)))
-        fanView?.animationType = .fan
-        self.view.addSubview(fanView!)
+        fanView.animationType = .fan
+        self.view.addSubview(fanView)
         
         cubicleView = AnimatableCubicleView(frame: CGRect(origin: .zero, size: CGSize(width: viewSize*2, height: viewSize*2)))
-        self.view.addSubview(cubicleView!)
+        self.view.addSubview(cubicleView)
         
         flowerView = CubeView(frame: CGRect(origin: .zero, size: CGSize(width: viewSize, height: viewSize)))
-        flowerView?.animationType = .flower
-        self.view.addSubview(flowerView!)
+        flowerView.animationType = .flower
+        self.view.addSubview(flowerView)
         
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapAction(sender:)))
         self.view.addGestureRecognizer(tapGestureRecognizer)

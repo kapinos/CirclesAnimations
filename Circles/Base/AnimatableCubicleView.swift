@@ -38,7 +38,7 @@ private extension AnimatableCubicleView {
         self.size = self.bounds.size.width / CGFloat(amount)
         
         for _ in 0..<amount*amount {
-            let cubeView = CubeView(frame: CGRect(origin: .zero, size: CGSize(width: self.size, height: self.size)))
+            let cubeView = CubeView(frame: CGRect(origin: .zero, size: CGSize(width: size, height: size)))
             cubeView.animationType = .cubicle
             cubeViews.append(cubeView)
         }
@@ -78,12 +78,10 @@ extension AnimatableCubicleView {
     func checkForTap(by point: CGPoint) {
         guard self.frame.contains(point) else { return }
         
-//        if self.frame.contains(point) {
-            if !isAnimate {
-                animate()
-            } else {
-                stopAnimation()
-            }
-//        }
+        if !isAnimate {
+            animate()
+        } else {
+            stopAnimation()
+        }
     }
 }

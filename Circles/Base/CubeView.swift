@@ -56,17 +56,21 @@ private extension CubeView {
             if let point = points[safe: i] {
                 let view = UIView(frame: CGRect(origin: point, size: CGSize(width: size, height: size)))
                 addLayersTo(cubeView: view, in: i+1)
-                self.views.append(view)
+                views.append(view)
                 self.addSubview(view)
             }
         }
     }
     
-    func getLayers(by name: String) -> [CAShapeLayer] {
-        let sublayers = self.views
-            .map{ $0.layer.sublayers }
-            .compactMap{ $0 }.flatMap{ $0 }.filter{ $0.name! == name }.map{ $0 as? CAShapeLayer }.compactMap{ $0 }
-        
+    func getLayers(by name: String) -> [CAShapeLayer] {        
+        var sublayers: [CAShapeLayer] = []
+        for view in views {
+            for layer in view.layer.sublayers ?? [] {
+                if name == layer.name, let layer = layer as? CAShapeLayer {
+                    sublayers.append(layer)
+                }
+            }
+        }
         return sublayers
     }
     
@@ -90,7 +94,7 @@ private extension CubeView {
         
         let lineLayer = CAShapeLayer()
         lineLayer.path = linePath.cgPath
-        lineLayer.strokeColor = self.animationType == .fan ? UIColor.clear.cgColor : LayerProperties.strokeColor
+        lineLayer.strokeColor = animationType == .fan ? UIColor.clear.cgColor : LayerProperties.strokeColor
         lineLayer.fillColor = UIColor.clear.cgColor
         
         lineLayer.lineWidth = LayerProperties.lineWidth
@@ -101,13 +105,14 @@ private extension CubeView {
     }
     
     func getOriginArcPath(for coordinates: SublayersCoordinates) -> UIBezierPath {
-        let originStartAngle = self.animationType == .fan
-            ? coordinates.originArc.endAngle
-            : coordinates.originArc.startAngle
-        
-        let originEndAngle = self.animationType == .fan
-            ? coordinates.originArc.startAngle
-            : coordinates.originArc.endAngle
+        let originStartAngle, originEndAngle: CGFloat
+        if animationType == .fan {
+            originStartAngle = coordinates.originArc.endAngle
+            originEndAngle   = coordinates.originArc.startAngle
+        } else {
+            originStartAngle = coordinates.originArc.startAngle
+            originEndAngle   = coordinates.originArc.endAngle
+        }
         
         let arcPath = UIBezierPath(arcCenter:   coordinates.originArc.center,
                                    radius:      size,
@@ -118,13 +123,14 @@ private extension CubeView {
     }
     
     func getTransformedArcPath(for coordinates: SublayersCoordinates) -> UIBezierPath {
-        let transformedStartAngle = self.animationType == .flower
-    
-            ? coordinates.transformedArc.endAngle
-            : coordinates.transformedArc.startAngle
-        let transformedEndAngle = self.animationType == .flower
-            ? coordinates.transformedArc.startAngle
-            : coordinates.transformedArc.endAngle
+        let transformedStartAngle, transformedEndAngle: CGFloat
+        if animationType == .flower {
+            transformedStartAngle = coordinates.transformedArc.endAngle
+            transformedEndAngle   = coordinates.transformedArc.startAngle
+        } else {
+            transformedStartAngle = coordinates.transformedArc.startAngle
+            transformedEndAngle   = coordinates.transformedArc.endAngle
+        }
         
         let transformedPath = UIBezierPath(arcCenter:   coordinates.transformedArc.center,
                                            radius:      size,
@@ -184,7 +190,7 @@ extension CubeView {
 private extension CubeView {
     func basicAnimation(with duration: Double) {
         let rotation = getRotationAnimation(with: duration)
-        self.views.forEach { view in
+        views.forEach { view in
             view.layer.add(rotation, forKey: "rotation")
         }
         
